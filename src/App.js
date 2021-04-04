@@ -2,13 +2,14 @@ import React, { Component } from 'react';
 import { Form } from './components/Form/Form';
 import { ContactList } from './components/ContactList/ContactList';
 import { Filter } from './components/Filter/Filter';
-
-import styles from './app.module.css';
-
+import { Notification } from './components/Notification/Notification';
+import { CSSTransition } from 'react-transition-group';
+import './App.css';
 export default class App extends Component {
   state = {
     contacts: [],
     name: '',
+    notify: false,
   };
 
   componentDidMount() {
@@ -40,8 +41,12 @@ export default class App extends Component {
       ? this.setState(prev => {
           return { ...prev, contacts: [...prev.contacts, contact] };
         })
-      : alert(`${contact.name} is already in contacts`);
+      : this.notifyTrue();
   };
+
+  notifyTrue() {
+    this.setState({ notify: true });
+  }
 
   getFilterName = event => {
     this.setState({ filter: event.target.value });
@@ -64,10 +69,44 @@ export default class App extends Component {
   render() {
     return (
       <>
-        <h2 className={styles.title}>Phonebook</h2>
+        <CSSTransition
+          in={this.state.notify}
+          timeout={2000}
+          classNames="notify"
+          unmountOnExit
+          onEntered={() => this.setState({ notify: false })}
+        >
+          <Notification />
+        </CSSTransition>
+        <CSSTransition
+          in={true}
+          appear={true}
+          timeout={2000}
+          classNames="op"
+          unmountOnExit
+        >
+          <h2 className="title">Phonebook</h2>
+        </CSSTransition>
         <Form getContact={this.getContact} getName={this.getName} />
-        <h2 className={styles.title}>Contacts</h2>
-        <Filter filter={this.state.filter} getFilterName={this.getFilterName} />
+        <CSSTransition
+          in={this.state.contacts.length >= 1}
+          timeout={300}
+          unmountOnExit
+          classNames="title-contacts"
+        >
+          <h2 className="title-contacts">Contacts</h2>
+        </CSSTransition>
+        <CSSTransition
+          in={this.state.contacts.length >= 2}
+          timeout={300}
+          unmountOnExit
+          classNames="filter"
+        >
+          <Filter
+            filter={this.state.filter}
+            getFilterName={this.getFilterName}
+          />
+        </CSSTransition>
         <ContactList
           contactList={this.filteredItems()}
           deleteContact={this.deleteContact}

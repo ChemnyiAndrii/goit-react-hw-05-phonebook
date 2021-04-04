@@ -52,7 +52,6 @@ export class Form extends Component {
     );
   }
 }
-
 Form.propTypes = {
   getContact: PropTypes.func,
   getName: PropTypes.func,
